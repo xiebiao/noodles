@@ -8,7 +8,7 @@ public final class ActionContext {
 
 	private static final ThreadLocal<ActionContext> contextThreadLocal = new ThreadLocal<ActionContext>();
 
-	private ServletContext context;
+	private ServletContext servletContext;
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 
@@ -19,7 +19,7 @@ public final class ActionContext {
 	static void setActionContext(ServletContext context,
 			HttpServletRequest request, HttpServletResponse response) {
 		ActionContext ctx = new ActionContext();
-		ctx.context = context;
+		ctx.servletContext = context;
 		ctx.request = request;
 		ctx.response = response;
 		contextThreadLocal.set(ctx);
@@ -29,8 +29,8 @@ public final class ActionContext {
 		contextThreadLocal.remove();
 	}
 
-	public ServletContext getContext() {
-		return context;
+	public ServletContext getServletContext() {
+		return servletContext;
 	}
 
 	public HttpServletRequest getRequest() {
@@ -39,10 +39,6 @@ public final class ActionContext {
 
 	public HttpServletResponse getResponse() {
 		return response;
-	}
-
-	public void setContext(ServletContext context) {
-		this.context = context;
 	}
 
 	public void setRequest(HttpServletRequest request) {

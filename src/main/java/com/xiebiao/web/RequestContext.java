@@ -25,8 +25,8 @@ import com.xiebiao.web.renderer.Renderer;
  * 
  */
 public class RequestContext {
-	private HttpServletRequest request;
-	private HttpServletResponse response;
+	// private HttpServletRequest request;
+	// private HttpServletResponse response;
 	private ServletContext context;
 	private boolean debug = true;
 	private Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
@@ -124,24 +124,22 @@ public class RequestContext {
 
 	private void handleResult(ActionExecutor executor) {
 		try {
-			ActionContext.setActionContext(context, request, response);
 			Object result = executor.excute();
 			if (result instanceof Renderer) {
 				Renderer renderer = (Renderer) result;
 				try {
-					if (response == null) {
-						LOG.error("response is null");
-					}
-					renderer.render(context, request, response);
+					renderer.render(ActionContext.getActionContext()
+							.getServletContext(), ActionContext
+							.getActionContext().getRequest(), ActionContext
+							.getActionContext().getResponse());
 				} catch (RenderException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			ActionContext.removeActionContext();
 		} catch (ExecuteException e) {
 			e.printStackTrace();
 		}
+		ActionContext.removeActionContext();
 	}
 
 	/**
@@ -154,8 +152,7 @@ public class RequestContext {
 	 */
 	public boolean service(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		this.request = req;
-		this.response = res;
+		ActionContext.setActionContext(context, req, res);
 		String path = req.getContextPath();
 		String url = req.getRequestURI().substring(path.length());
 		ActionExecutor executor = null;
