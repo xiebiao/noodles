@@ -7,13 +7,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.xiebiao.web.exception.ExecuteException;
 
-public class Executor {
+public class ActionExecutor {
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private Action action;
 	private Map<String, Object> arguments;
 
-	public Executor(HttpServletRequest request, HttpServletResponse response,
+	public ActionExecutor(HttpServletRequest request, HttpServletResponse response,
 			Action action, Map<String, Object> arguments) {
 		this.request = request;
 		this.response = response;

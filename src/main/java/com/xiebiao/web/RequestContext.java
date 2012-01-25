@@ -122,7 +122,7 @@ public class RequestContext {
 
 	}
 
-	private void handleResult(Executor executor) {
+	private void handleResult(ActionExecutor executor) {
 		try {
 			ActionContext.setActionContext(context, request, response);
 			Object result = executor.excute();
@@ -158,12 +158,12 @@ public class RequestContext {
 		this.response = res;
 		String path = req.getContextPath();
 		String url = req.getRequestURI().substring(path.length());
-		Executor executor = null;
+		ActionExecutor executor = null;
 		for (UrlMapper urlMapper : this.urlMapperArray) {
 			Map<String, Object> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
 				Action action = this.urlMapperMap.get(urlMapper);
-				executor = new Executor(req, res, action, parameterMap);
+				executor = new ActionExecutor(req, res, action, parameterMap);
 				break;
 			}
 		}
