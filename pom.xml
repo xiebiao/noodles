@@ -5,6 +5,7 @@
 	<groupId>com.xiebiao.web</groupId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
+	<description>Just One MVC framework</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit_version>4.8</junit_version>
