@@ -131,6 +131,9 @@ public class RequestContext {
 
 			} else if (result instanceof Redirector) {
 				Redirector redirector = (Redirector) result;
+				redirector.redirect(ActionContext.getActionContext(),
+						ActionContext.getActionContext().getRequest(),
+						ActionContext.getActionContext().getResponse());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

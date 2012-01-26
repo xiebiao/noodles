@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.xiebiao.web.Redirector;
 import com.xiebiao.web.annotation.Mapping;
 import com.xiebiao.web.renderer.Renderer;
 import com.xiebiao.web.renderer.TemplateRenderer;
@@ -36,6 +37,11 @@ public class Home implements java.io.Serializable {
 	public Object excute() {
 		LOG.debug("excute");
 		return null;
+	}
+
+	@Mapping("/home/go")
+	public Redirector go() {
+		return new Redirector("http://xiebiao.com");
 	}
 
 	@Mapping("/home/${name}/${id}")
