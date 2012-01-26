@@ -3,10 +3,10 @@ package com.xiebiao.web.renderer;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.xiebiao.web.ActionContext;
 import com.xiebiao.web.exception.RenderException;
 import com.xiebiao.web.template.FreemarkerTemplate;
 import com.xiebiao.web.template.Template;
@@ -25,10 +25,10 @@ public class TemplateRenderer implements Renderer {
 		this.data = data;
 	}
 
-	public void render(ServletContext context, HttpServletRequest request,
+	public void render(ActionContext actionContext, HttpServletRequest request,
 			HttpServletResponse response) throws RenderException {
 		Template template = new FreemarkerTemplate(this.templatePath, data);
-		template.render(context, request, response);
+		template.render(actionContext, request, response);
 	}
 
 }

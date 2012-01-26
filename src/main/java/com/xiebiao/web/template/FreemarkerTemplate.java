@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.Writer;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+import com.xiebiao.web.ActionContext;
+import com.xiebiao.web.RequestContext;
 import com.xiebiao.web.exception.RenderException;
 
 import freemarker.template.Configuration;
@@ -27,23 +28,22 @@ public class FreemarkerTemplate implements Template {
 
 	}
 
-	public void render(ServletContext context, HttpServletRequest request,
+	public void render(ActionContext actionContext, HttpServletRequest request,
 			HttpServletResponse response) throws RenderException {
 		try {
-			String templatesDirectory = context.getRealPath("")
-					+ "/WEB-INF/templates/";
+			String templatesDirectory = actionContext.getServletContext()
+					.getRealPath("") + "/WEB-INF/templates/";
 			cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
 			LOG.debug(templatesDirectory);
 			freemarker.template.Template template = cfg
 					.getTemplate(this.templateFile);
 			response.setContentType("text/html; charset="
-					+ template.getEncoding());
+					+ RequestContext.ENCODING);
 			Writer out = response.getWriter();
 			template.process(data, out);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RenderException();
-
 		}
 	}
 }

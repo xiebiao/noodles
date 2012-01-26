@@ -1,21 +1,20 @@
 package com.xiebiao.web;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
 public class Action {
 	private Object instance;
 	private Method method;
-	private Map<String,Object> arguments = new HashMap<String,Object>();
+	private Class[] argumentTypes;
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
 
-	public Action(Object instance, Method method) {
+	public Action(Object instance, Method method, Class[] argumentTypes) {
 		this.instance = instance;
-		this.method = method;		
+		this.method = method;
+		this.argumentTypes = argumentTypes;
 	}
 
 	public Object getInstance() {

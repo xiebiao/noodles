@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 
 import com.xiebiao.web.annotation.Mapping;
-import com.xiebiao.web.exception.ExecuteException;
-import com.xiebiao.web.exception.RenderException;
 import com.xiebiao.web.renderer.Renderer;
 
 /**
@@ -25,8 +23,7 @@ import com.xiebiao.web.renderer.Renderer;
  * 
  */
 public class RequestContext {
-	// private HttpServletRequest request;
-	// private HttpServletResponse response;
+	public static String ENCODING = "UTF-8";
 	private ServletContext context;
 	private boolean debug = true;
 	private Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
@@ -42,7 +39,6 @@ public class RequestContext {
 		if (packages == null) {
 			packages = "com.xiebiao.web.action";
 		}
-		LOG.debug(setting.getInitParameter("debug"));
 	}
 
 	/**
@@ -73,18 +69,12 @@ public class RequestContext {
 					if (_hasAnnotation(m)) {
 						Mapping mapping = m.getAnnotation(Mapping.class);
 						String url = mapping.value();
-						Action action = new Action(actionObj, m);
+						Action action = new Action(actionObj, m,
+								m.getParameterTypes());
 						this.urlMapperMap.put(new UrlMapper(url), action);
 					}
 				}
-
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -122,7 +112,12 @@ public class RequestContext {
 	}
 
 	private void handleException(HttpServletRequest req, HttpServletResponse res) {
-
+		try {
+			req.getRequestDispatcher("/WEB-INF/500.jsp").forward(req, res);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void handleResult(ActionExecutor executor) {
@@ -130,17 +125,17 @@ public class RequestContext {
 			Object result = executor.excute();
 			if (result instanceof Renderer) {
 				Renderer renderer = (Renderer) result;
-				try {
-					renderer.render(ActionContext.getActionContext()
-							.getServletContext(), ActionContext
-							.getActionContext().getRequest(), ActionContext
-							.getActionContext().getResponse());
-				} catch (RenderException e) {
-					e.printStackTrace();
-				}
+				renderer.render(ActionContext.getActionContext(), ActionContext
+						.getActionContext().getRequest(), ActionContext
+						.getActionContext().getResponse());
+
+			} else if (result instanceof Redirector) {
+				Redirector redirector = (Redirector) result;
 			}
-		} catch (ExecuteException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			handleException(ActionContext.getActionContext().getRequest(),
+					ActionContext.getActionContext().getResponse());
 		}
 		ActionContext.removeActionContext();
 	}
@@ -160,7 +155,7 @@ public class RequestContext {
 		String url = req.getRequestURI().substring(path.length());
 		ActionExecutor executor = null;
 		for (UrlMapper urlMapper : this.urlMapperArray) {
-			Map<String, Object> parameterMap = urlMapper.getParameterMap(url);
+			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
 				Action action = this.urlMapperMap.get(urlMapper);
 				executor = new ActionExecutor(req, res, action, parameterMap);

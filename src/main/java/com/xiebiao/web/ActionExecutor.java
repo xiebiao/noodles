@@ -5,16 +5,22 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.LoggerFactory;
+
 import com.xiebiao.web.exception.ExecuteException;
+import com.xiebiao.web.util.BeanUtils;
 
 public class ActionExecutor {
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private Action action;
-	private Map<String, Object> arguments;
+	private Map<String, String> arguments;
+	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
+			.getClass());
 
-	public ActionExecutor(HttpServletRequest request, HttpServletResponse response,
-			Action action, Map<String, Object> arguments) {
+	public ActionExecutor(HttpServletRequest request,
+			HttpServletResponse response, Action action,
+			Map<String, String> arguments) {
 		this.request = request;
 		this.response = response;
 		this.action = action;
@@ -28,11 +34,11 @@ public class ActionExecutor {
 	 * @return
 	 */
 	public Object excute() throws ExecuteException {
-
 		try {
-			// if(arguments==null){
-			//
-			// }
+			BeanUtils.setProperties(action.getInstance(), arguments);
+			if (arguments == null || arguments.size() == 0) {
+				return action.getMethod().invoke(action.getInstance());
+			}
 			return action.getMethod().invoke(action.getInstance());
 		} catch (Exception e) {
 			e.printStackTrace();

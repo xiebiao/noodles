@@ -15,6 +15,7 @@ public class UrlMapper {
 	private String url;
 	private Pattern pattern;
 	private String[] parameterNames;
+	private boolean debug = false;
 
 	public UrlMapper(String mappingUrl) {
 		this.url = mappingUrl;
@@ -44,7 +45,7 @@ public class UrlMapper {
 		for (int i = 0; i < parameterNames.size(); i++) {
 			this.parameterNames[i] = parameterNames.get(i);
 		}
-		
+
 		this.pattern = Pattern.compile(sb.toString());
 	}
 
@@ -54,21 +55,22 @@ public class UrlMapper {
 	 * @param requestUrl
 	 * @return
 	 */
-	public Map<String, Object> getParameterMap(String requestUrl) {
+	public Map<String, String> getParameterMap(String requestUrl) {
 		Matcher m = this.pattern.matcher(requestUrl);
 		if (!m.matches()) {
-			LOG.debug(requestUrl + " can't matche");
+			if (this.isDebug()) {
+				LOG.debug(requestUrl + " can't matche");
+			}
 			return null;
 		}
-		Map<String, Object> paramsValues = new HashMap<String, Object>();
+		Map<String, String> paramsValues = new HashMap<String, String>();
 		int count = m.groupCount();
 		if (this.parameterNames.length != count) {
 			return null;
 		}
 		for (int i = 1; i <= count; i++) {
 			String value = m.group(i);
-			LOG.debug(this.parameterNames[i-1]+":"+value);
-			paramsValues.put(this.parameterNames[i-1], value);
+			paramsValues.put(this.parameterNames[i - 1], value);
 		}
 		return paramsValues;
 	}
@@ -87,5 +89,13 @@ public class UrlMapper {
 
 	public int hashCode() {
 		return url.hashCode();
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 }
