@@ -32,12 +32,16 @@ public class RequestContext {
 	private Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private final static String ACTION_DEFAULT_PACKAGE = "com.xiebiao.web.action";
 	private UrlMapper[] urlMapperArray;
+	private String packages;
 
 	public RequestContext(Setting setting) {
 		this.context = setting.getServletContext();
 		this.debug = Boolean.parseBoolean(setting.getInitParameter("debug"));
+		this.packages = setting.getInitParameter("packages");
+		if (packages == null) {
+			packages = "com.xiebiao.web.action";
+		}
 		LOG.debug(setting.getInitParameter("debug"));
 	}
 
@@ -54,8 +58,7 @@ public class RequestContext {
 		// 可以与spring整合
 		File actionClassFilePath = new File(this.getClass().getClassLoader()
 				.getResource("").getFile()
-				+ File.separator
-				+ ACTION_DEFAULT_PACKAGE.replace(".", File.separator));
+				+ File.separator + packages.replace(".", File.separator));
 		String[] actionClassFiles = actionClassFilePath.list();
 		if (this.isDebug()) {
 			LOG.debug(actionClassFilePath.getAbsolutePath());
@@ -63,8 +66,8 @@ public class RequestContext {
 		for (String _class : actionClassFiles) {
 			String className = _class.replace(".class", "");
 			try {
-				Object actionObj = Class.forName(
-						ACTION_DEFAULT_PACKAGE + "." + className).newInstance();
+				Object actionObj = Class.forName(packages + "." + className)
+						.newInstance();
 				Method[] ms = actionObj.getClass().getMethods();
 				for (Method m : ms) {
 					if (_hasAnnotation(m)) {
