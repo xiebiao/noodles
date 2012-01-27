@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.xiebiao.web.Forward;
 import com.xiebiao.web.Redirector;
 import com.xiebiao.web.annotation.Mapping;
 import com.xiebiao.web.renderer.Renderer;
@@ -37,6 +38,12 @@ public class Home implements java.io.Serializable {
 	public Object excute() {
 		LOG.debug("excute");
 		return null;
+	}
+
+	@Mapping("/home/forward")
+	public Forward forward() {
+		LOG.debug("forward to blog");
+		return new Forward("/blog/1");
 	}
 
 	@Mapping("/home/go")

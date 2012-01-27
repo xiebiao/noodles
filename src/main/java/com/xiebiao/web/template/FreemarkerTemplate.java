@@ -43,7 +43,7 @@ public class FreemarkerTemplate implements Template {
 			template.process(data, out);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RenderException();
+			throw new RenderException(e.getMessage());
 		}
 	}
 }
