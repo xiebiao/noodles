@@ -15,11 +15,13 @@ public class UrlMapper {
 	private String url;
 	private Pattern pattern;
 	private String[] parameterNames;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	public UrlMapper(String mappingUrl) {
 		this.url = mappingUrl;
-		LOG.debug(this.url);
+		if (this.isDebug()) {
+			LOG.debug(this.url);
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("^");
 		String tempUrl = this.url;
@@ -35,7 +37,7 @@ public class UrlMapper {
 				parameterNames.add(paramName);
 				tempUrl = tempUrl.substring($_ + 1);
 			} else {
-				// URL中没有映射参数
+				// no query string
 				sb.append(this.url);
 				break;
 			}
@@ -56,14 +58,18 @@ public class UrlMapper {
 	 * @return
 	 */
 	public Map<String, String> getParameterMap(String requestUrl) {
+		Map<String, String> paramsValues = new HashMap<String, String>();
+		// Url equals.
+		if (requestUrl.equals(this.getUrl())) {
+			return paramsValues;
+		}
 		Matcher m = this.pattern.matcher(requestUrl);
 		if (!m.matches()) {
 			if (this.isDebug()) {
-				LOG.debug(requestUrl + " can't matche");
+				LOG.debug(requestUrl + " can't matche " + url);
 			}
 			return null;
 		}
-		Map<String, String> paramsValues = new HashMap<String, String>();
 		int count = m.groupCount();
 		if (this.parameterNames.length != count) {
 			return null;
@@ -97,5 +103,13 @@ public class UrlMapper {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public Pattern getPattern() {
+		return pattern;
 	}
 }
