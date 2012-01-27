@@ -3,6 +3,8 @@ package com.xiebiao.web;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 
 import com.xiebiao.web.annotation.Mapping;
+import com.xiebiao.web.exception.MappingException;
 import com.xiebiao.web.renderer.Renderer;
 
 /**
@@ -26,10 +29,10 @@ public class RequestContext {
 	public static String ENCODING = "UTF-8";
 	private ServletContext context;
 	private boolean debug = true;
-	private Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
+	private static Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private UrlMapper[] urlMapperArray;
+	private static UrlMapper[] urlMapperArray;
 	private String packages;
 
 	public RequestContext(Setting setting) {
@@ -39,6 +42,10 @@ public class RequestContext {
 		if (packages == null) {
 			packages = "com.xiebiao.web.action";
 		}
+	}
+
+	public static Map<UrlMapper, Action> getUrlMapperMap() {
+		return urlMapperMap;
 	}
 
 	/**
@@ -71,7 +78,17 @@ public class RequestContext {
 						String url = mapping.value();
 						Action action = new Action(actionObj, m,
 								m.getParameterTypes());
-						this.urlMapperMap.put(new UrlMapper(url), action);
+						UrlMapper urlMapper = new UrlMapper(url);
+						if (urlMapperMap.get(urlMapper) != null) {
+							throw new MappingException(
+									"'"
+											+ url
+											+ "'"
+											+ " is matched more than one action method.");
+						} else {
+							urlMapperMap.put(urlMapper, action);
+						}
+
 					}
 				}
 			} catch (Exception e) {
@@ -79,14 +96,33 @@ public class RequestContext {
 				e.printStackTrace();
 			}
 		}
-		urlMapperArray = new UrlMapper[this.urlMapperMap.keySet().size()];
-		Iterator it = this.urlMapperMap.keySet().iterator();
+		urlMapperArray = new UrlMapper[urlMapperMap.keySet().size()];
+		Iterator it = urlMapperMap.keySet().iterator();
 		int sum = 0;
 		while (it.hasNext()) {
 			UrlMapper urlMapper = (UrlMapper) it.next();
 			urlMapperArray[sum] = urlMapper;
 			sum++;
 		}
+		// url排序
+		Arrays.sort(urlMapperArray, new Comparator<UrlMapper>() {
+			public int compare(UrlMapper o1, UrlMapper o2) {
+				String url1 = o1.getUrl();
+				String url2 = o2.getUrl();
+				int $1 = url1.indexOf("${");
+				int $2 = url2.indexOf("${");
+				// url contains "${" tag
+				if ($1 > $2) {
+					return $1;
+				}
+				int c = url1.compareTo(url2);
+				return c;
+			}
+		});
+		for (UrlMapper urlMapper : urlMapperArray) {
+			LOG.debug(urlMapper.getUrl());
+		}
+
 	}
 
 	/**
@@ -112,12 +148,7 @@ public class RequestContext {
 	}
 
 	private void handleException(HttpServletRequest req, HttpServletResponse res) {
-		try {
-			req.getRequestDispatcher("/WEB-INF/500.jsp").forward(req, res);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 	}
 
 	private void handleResult(ActionExecutor executor) {
@@ -132,6 +163,11 @@ public class RequestContext {
 			} else if (result instanceof Redirector) {
 				Redirector redirector = (Redirector) result;
 				redirector.redirect(ActionContext.getActionContext(),
+						ActionContext.getActionContext().getRequest(),
+						ActionContext.getActionContext().getResponse());
+			} else if (result instanceof Forward) {
+				Forward forward = (Forward) result;
+				forward.forward(forward, ActionContext.getActionContext(),
 						ActionContext.getActionContext().getRequest(),
 						ActionContext.getActionContext().getResponse());
 			}
@@ -160,7 +196,7 @@ public class RequestContext {
 		for (UrlMapper urlMapper : this.urlMapperArray) {
 			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
-				Action action = this.urlMapperMap.get(urlMapper);
+				Action action = urlMapperMap.get(urlMapper);
 				executor = new ActionExecutor(req, res, action, parameterMap);
 				break;
 			}
@@ -178,5 +214,9 @@ public class RequestContext {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public static UrlMapper[] getUrlMapperArray() {
+		return urlMapperArray;
 	}
 }

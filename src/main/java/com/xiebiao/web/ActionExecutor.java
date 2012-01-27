@@ -36,13 +36,10 @@ public class ActionExecutor {
 	public Object excute() throws ExecuteException {
 		try {
 			BeanUtils.setProperties(action.getInstance(), arguments);
-			if (arguments == null || arguments.size() == 0) {
-				return action.getMethod().invoke(action.getInstance());
-			}
 			return action.getMethod().invoke(action.getInstance());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ExecuteException();
+			throw new ExecuteException(e.getMessage());
 		}
 
 	}
