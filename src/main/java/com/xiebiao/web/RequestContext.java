@@ -28,7 +28,6 @@ import com.xiebiao.web.renderer.Renderer;
 public class RequestContext {
 	public static String ENCODING = "UTF-8";
 	private ServletContext context;
-	private boolean debug = true;
 	private static Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -37,7 +36,6 @@ public class RequestContext {
 
 	public RequestContext(Setting setting) {
 		this.context = setting.getServletContext();
-		this.debug = Boolean.parseBoolean(setting.getInitParameter("debug"));
 		this.packages = setting.getInitParameter("packages");
 		if (packages == null) {
 			packages = "com.xiebiao.web.action";
@@ -48,22 +46,18 @@ public class RequestContext {
 		return urlMapperMap;
 	}
 
-	/**
-	 * 
-	 */
 	public void init() {
-		// 加载URL映射的Action
 		_loadActions();
 
 	}
 
 	private void _loadActions() {
-		// 可以与spring整合
+		//
 		File actionClassFilePath = new File(this.getClass().getClassLoader()
 				.getResource("").getFile()
 				+ File.separator + packages.replace(".", File.separator));
 		String[] actionClassFiles = actionClassFilePath.list();
-		if (this.isDebug()) {
+		if (LOG.isDebugEnabled()) {
 			LOG.debug(actionClassFilePath.getAbsolutePath());
 		}
 		for (String _class : actionClassFiles) {
@@ -97,14 +91,14 @@ public class RequestContext {
 			}
 		}
 		urlMapperArray = new UrlMapper[urlMapperMap.keySet().size()];
-		Iterator it = urlMapperMap.keySet().iterator();
+		Iterator<?> it = urlMapperMap.keySet().iterator();
 		int sum = 0;
 		while (it.hasNext()) {
 			UrlMapper urlMapper = (UrlMapper) it.next();
 			urlMapperArray[sum] = urlMapper;
 			sum++;
 		}
-		// url排序
+		// url sort
 		Arrays.sort(urlMapperArray, new Comparator<UrlMapper>() {
 			public int compare(UrlMapper o1, UrlMapper o2) {
 				String url1 = o1.getUrl();
@@ -126,7 +120,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * 检测Action方法注解Mapping的值
+	 * Check action's annotations
 	 * 
 	 * @param method
 	 * @return
@@ -135,10 +129,8 @@ public class RequestContext {
 		Mapping mapping = method.getAnnotation(Mapping.class);
 		if (mapping != null) {
 			if (mapping.value() == null || mapping.value().equals("")) {
-				if (this.isDebug()) {
-					LOG.error(method.toGenericString() + ":"
-							+ "has error mapping value");
-				}
+				LOG.error(method.toGenericString() + ":"
+						+ "has error mapping value");
 				return false;
 			} else {
 				return true;
@@ -180,7 +172,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * 处理请求
+	 * handle service
 	 * 
 	 * @param req
 	 * @param res
@@ -193,7 +185,7 @@ public class RequestContext {
 		String path = req.getContextPath();
 		String url = req.getRequestURI().substring(path.length());
 		ActionExecutor executor = null;
-		for (UrlMapper urlMapper : this.urlMapperArray) {
+		for (UrlMapper urlMapper : urlMapperArray) {
 			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
 				Action action = urlMapperMap.get(urlMapper);
@@ -206,14 +198,6 @@ public class RequestContext {
 			return true;
 		}
 		return false;
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
 	}
 
 	public static UrlMapper[] getUrlMapperArray() {
