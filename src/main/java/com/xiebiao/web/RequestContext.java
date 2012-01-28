@@ -169,9 +169,7 @@ public class RequestContext {
 
 			} else if (result instanceof Redirector) {
 				Redirector redirector = (Redirector) result;
-				redirector.redirect(ActionContext.getActionContext(),
-						ActionContext.getActionContext().getRequest(),
-						ActionContext.getActionContext().getResponse());
+				redirector.redirect();
 			} else if (result instanceof Forward) {
 				Forward forward = (Forward) result;
 				forward.forward(forward);
@@ -180,7 +178,6 @@ public class RequestContext {
 			e.printStackTrace();
 			handleException();
 		}
-		ActionContext.removeActionContext();
 	}
 
 	/**

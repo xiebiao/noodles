@@ -1,8 +1,5 @@
 package com.xiebiao.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public class Redirector {
 	private String location;
 
@@ -10,9 +7,7 @@ public class Redirector {
 		this.location = location;
 	}
 
-	public void redirect(ActionContext actionContext,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		response.sendRedirect(location);
+	public void redirect() throws Exception {
+		RequestContext.getCurrent().getResponse().sendRedirect(location);
 	}
 }
