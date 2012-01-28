@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
-
 public class DispatcherFilter implements Filter {
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -40,13 +39,15 @@ public class DispatcherFilter implements Filter {
 		if (requestContext.service(req, res)) {
 			return;
 		} else {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Cann't find handle action!");
+			}
 			chain.doFilter(request, response);
 		}
 	}
 
 	public void destroy() {
-		// TODO Auto-generated method stub
-
+		this.requestContext.destroy();
 	}
 
 }

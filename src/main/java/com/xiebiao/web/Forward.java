@@ -2,14 +2,12 @@ package com.xiebiao.web;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.LoggerFactory;
 
 import com.xiebiao.web.renderer.Renderer;
 
 public class Forward {
+	private boolean debug;
 	private String url;
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -38,36 +36,45 @@ public class Forward {
 		return false;
 	}
 
-	private void forwardNext(Forward forwarder, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	private void forwardNext(Forward forwarder) throws Exception {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Forward to URL:" + forwarder.getUrl());
+		}
 		for (UrlMapper urlMapper : RequestContext.getUrlMapperArray()) {
 			Map<String, String> parameterMap = urlMapper
 					.getParameterMap(forwarder.getUrl());
 			if (parameterMap != null) {
 				Action action = RequestContext.getUrlMapperMap().get(urlMapper);
-				ActionExecutor actionExecutor = new ActionExecutor(request,
-						response, action, parameterMap);
+				ActionExecutor actionExecutor = new ActionExecutor(
+						RequestContext.getCurrent().getRequest(),
+						RequestContext.getCurrent().getResponse(), action,
+						parameterMap);
 				Object result = actionExecutor.excute();
 				if (result instanceof Forward) {
 					Forward _forwarder = (Forward) result;
 					if (_forwarder.equals(this)) {
 						return;
 					}
-					forwardNext(_forwarder, request, response);
+					forwardNext(_forwarder);
 				} else if (result instanceof Renderer) {
 					Renderer renderer = (Renderer) result;
-					renderer.render(ActionContext.getActionContext(),
-							ActionContext.getActionContext().getRequest(),
-							ActionContext.getActionContext().getResponse());
+					renderer.render(RequestContext.getCurrent().getRequest(),
+							RequestContext.getCurrent().getResponse());
 					return;
 				}
 			}
 		}
 	}
 
-	public void forward(Forward forwarder, ActionContext actionContext,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		forwardNext(forwarder, request, response);
+	public void forward(Forward forwarder) throws Exception {
+		forwardNext(forwarder);
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 }

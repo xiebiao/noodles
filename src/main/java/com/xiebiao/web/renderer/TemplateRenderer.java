@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.xiebiao.web.ActionContext;
 import com.xiebiao.web.exception.RenderException;
 import com.xiebiao.web.template.FreemarkerTemplate;
 import com.xiebiao.web.template.Template;
@@ -25,10 +24,10 @@ public class TemplateRenderer implements Renderer {
 		this.data = data;
 	}
 
-	public void render(ActionContext actionContext, HttpServletRequest request,
-			HttpServletResponse response) throws RenderException {
+	public void render(HttpServletRequest request, HttpServletResponse response)
+			throws RenderException {
 		Template template = new FreemarkerTemplate(this.templatePath, data);
-		template.render(actionContext, request, response);
+		template.render(request, response);
 	}
 
 }

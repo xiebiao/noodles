@@ -65,9 +65,6 @@ public class UrlMapper {
 		}
 		Matcher m = this.pattern.matcher(requestUrl);
 		if (!m.matches()) {
-			if (this.isDebug()) {
-				LOG.debug(requestUrl + " can't matche " + url);
-			}
 			return null;
 		}
 		int count = m.groupCount();

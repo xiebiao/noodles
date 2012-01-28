@@ -26,8 +26,11 @@ import com.xiebiao.web.renderer.Renderer;
  * 
  */
 public class RequestContext {
+	private static final ThreadLocal<RequestContext> contextThreadLocal = new ThreadLocal<RequestContext>();
 	public static String ENCODING = "UTF-8";
-	private ServletContext context;
+	private ServletContext servletContext;
+	private HttpServletRequest request;
+	private HttpServletResponse response;
 	private static Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -35,11 +38,23 @@ public class RequestContext {
 	private String packages;
 
 	public RequestContext(Setting setting) {
-		this.context = setting.getServletContext();
+		this.servletContext = setting.getServletContext();
 		this.packages = setting.getInitParameter("packages");
 		if (packages == null) {
 			packages = "com.xiebiao.web.action";
 		}
+	}
+
+	public static void set(RequestContext requestContext) {
+		contextThreadLocal.set(requestContext);
+	}
+
+	public static void remove() {
+		contextThreadLocal.remove();
+	}
+
+	public static RequestContext getCurrent() {
+		return contextThreadLocal.get();
 	}
 
 	public static Map<UrlMapper, Action> getUrlMapperMap() {
@@ -113,10 +128,11 @@ public class RequestContext {
 				return c;
 			}
 		});
-		for (UrlMapper urlMapper : urlMapperArray) {
-			LOG.debug(urlMapper.getUrl());
+		if (LOG.isDebugEnabled()) {
+			for (UrlMapper urlMapper : urlMapperArray) {
+				LOG.debug(urlMapper.getUrl());
+			}
 		}
-
 	}
 
 	/**
@@ -139,7 +155,7 @@ public class RequestContext {
 		return false;
 	}
 
-	private void handleException(HttpServletRequest req, HttpServletResponse res) {
+	private void handleException() {
 
 	}
 
@@ -148,9 +164,8 @@ public class RequestContext {
 			Object result = executor.excute();
 			if (result instanceof Renderer) {
 				Renderer renderer = (Renderer) result;
-				renderer.render(ActionContext.getActionContext(), ActionContext
-						.getActionContext().getRequest(), ActionContext
-						.getActionContext().getResponse());
+				renderer.render(getCurrent().getRequest(), getCurrent()
+						.getResponse());
 
 			} else if (result instanceof Redirector) {
 				Redirector redirector = (Redirector) result;
@@ -159,14 +174,11 @@ public class RequestContext {
 						ActionContext.getActionContext().getResponse());
 			} else if (result instanceof Forward) {
 				Forward forward = (Forward) result;
-				forward.forward(forward, ActionContext.getActionContext(),
-						ActionContext.getActionContext().getRequest(),
-						ActionContext.getActionContext().getResponse());
+				forward.forward(forward);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			handleException(ActionContext.getActionContext().getRequest(),
-					ActionContext.getActionContext().getResponse());
+			handleException();
 		}
 		ActionContext.removeActionContext();
 	}
@@ -181,26 +193,49 @@ public class RequestContext {
 	 */
 	public boolean service(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		ActionContext.setActionContext(context, req, res);
-		String path = req.getContextPath();
-		String url = req.getRequestURI().substring(path.length());
+		this.request = req;
+		this.response = res;
+		set(this);
+		String path = this.request.getContextPath();
+		String url = this.request.getRequestURI().substring(path.length());
 		ActionExecutor executor = null;
 		for (UrlMapper urlMapper : urlMapperArray) {
 			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
 				Action action = urlMapperMap.get(urlMapper);
-				executor = new ActionExecutor(req, res, action, parameterMap);
+				executor = new ActionExecutor(this.request, this.response,
+						action, parameterMap);
 				break;
 			}
 		}
 		if (executor != null) {
 			this.handleResult(executor);
+			remove();
 			return true;
 		}
+		remove();
 		return false;
 	}
 
 	public static UrlMapper[] getUrlMapperArray() {
 		return urlMapperArray;
+	}
+
+	public void destroy() {
+		this.request = null;
+		this.response = null;
+		this.servletContext = null;
+	}
+
+	public HttpServletRequest getRequest() {
+		return request;
+	}
+
+	public HttpServletResponse getResponse() {
+		return response;
+	}
+
+	public ServletContext getServletContext() {
+		return servletContext;
 	}
 }

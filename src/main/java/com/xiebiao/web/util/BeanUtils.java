@@ -4,13 +4,9 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
-
 import com.xiebiao.web.converter.ConverterHelper;
 
 public final class BeanUtils {
-	private static final org.slf4j.Logger LOG = LoggerFactory
-			.getLogger(BeanUtils.class);
 
 	public static Method getMethod(Object bean, String methodName)
 			throws Exception {
@@ -31,7 +27,7 @@ public final class BeanUtils {
 		Object convertValue = null;
 		try {
 			if (method != null) {
-				Class type = method.getParameterTypes()[0];
+				Class<?> type = method.getParameterTypes()[0];
 				if (type.equals(value.getClass())) {
 					method.invoke(bean, value);
 					return;
@@ -52,10 +48,10 @@ public final class BeanUtils {
 
 	public static void setProperties(Object bean,
 			Map<String, String> propertyValue) throws Exception {
-		Iterator it = propertyValue.keySet().iterator();
+		Iterator<?> it = propertyValue.keySet().iterator();
 		while (it.hasNext()) {
 			String name = (String) it.next();
-			String value = (String)propertyValue.get(name);
+			String value = (String) propertyValue.get(name);
 			if (value == null)
 				continue;
 			setProperty(bean, name, value);

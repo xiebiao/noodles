@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
-import com.xiebiao.web.ActionContext;
 import com.xiebiao.web.RequestContext;
 import com.xiebiao.web.exception.RenderException;
 
@@ -28,11 +27,12 @@ public class FreemarkerTemplate implements Template {
 
 	}
 
-	public void render(ActionContext actionContext, HttpServletRequest request,
-			HttpServletResponse response) throws RenderException {
+	public void render(HttpServletRequest request, HttpServletResponse response)
+			throws RenderException {
 		try {
-			String templatesDirectory = actionContext.getServletContext()
-					.getRealPath("") + "/WEB-INF/templates/";
+			String templatesDirectory = RequestContext.getCurrent()
+					.getServletContext().getRealPath("")
+					+ "/WEB-INF/templates/";
 			cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
 			LOG.debug(templatesDirectory);
 			freemarker.template.Template template = cfg
