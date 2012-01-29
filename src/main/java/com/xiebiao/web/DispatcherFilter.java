@@ -25,7 +25,7 @@ public class DispatcherFilter implements Filter {
 	private RequestContext requestContext;
 
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		requestContext = new RequestContext(new Settings() {
+		requestContext = new RequestContext(new Setting() {
 			public ServletContext getServletContext() {
 				return filterConfig.getServletContext();
 			}

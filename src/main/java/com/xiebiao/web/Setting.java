@@ -7,7 +7,7 @@ import javax.servlet.ServletContext;
  * @author xiaog (joyrap@gmail.com)
  * 
  */
-public interface Settings {
+public interface Setting {
 	ServletContext getServletContext();
 
 	String getInitParameter(String name);

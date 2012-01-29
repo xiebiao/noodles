@@ -39,7 +39,7 @@ public class RequestContext {
 	private static UrlMapper[] _urlMapperArray;
 	private String _packages;
 
-	public RequestContext(Settings settings) {
+	public RequestContext(Setting settings) {
 		this._servletContext = settings.getServletContext();
 		this._packages = settings.getInitParameter("packages");
 		if (_packages == null) {
