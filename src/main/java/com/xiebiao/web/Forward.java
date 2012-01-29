@@ -45,9 +45,7 @@ public class Forward {
 					.getParameterMap(forwarder.getUrl());
 			if (parameterMap != null) {
 				Action action = RequestContext.getUrlMapperMap().get(urlMapper);
-				ActionExecutor actionExecutor = new ActionExecutor(
-						RequestContext.getCurrent().getRequest(),
-						RequestContext.getCurrent().getResponse(), action,
+				ActionExecutor actionExecutor = new ActionExecutor(action,
 						parameterMap);
 				Object result = actionExecutor.excute();
 				if (result instanceof Forward) {

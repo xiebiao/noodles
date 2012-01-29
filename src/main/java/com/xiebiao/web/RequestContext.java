@@ -180,6 +180,30 @@ public class RequestContext {
 		}
 	}
 
+	private Map<String, String> parseQueryString(String queryString) {
+		if (queryString == null || queryString.equals("")
+				|| queryString.indexOf("=") == -1) {
+			return null;
+		}
+		String[] nameValues = queryString.split("&");
+		if (nameValues.length <= 1) {
+			return null;
+		}
+		if (nameValues.length > 60) {
+			LOG.warn("The queryString too long");
+			return null;
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		for (int i = 0; i < nameValues.length; i++) {
+			String[] temp = nameValues[i].split("=");
+			if (temp.length == 2 && !temp[0].equals("") && !temp[1].equals("")) {
+				map.put(temp[0], temp[1]);
+			}
+		}
+		return map;
+
+	}
+
 	/**
 	 * handle service
 	 * 
@@ -193,15 +217,21 @@ public class RequestContext {
 		this.request = req;
 		this.response = res;
 		set(this);
-		String path = this.request.getContextPath();
-		String url = this.request.getRequestURI().substring(path.length());
+		String path = getCurrent().getRequest().getContextPath();
+		String url = getCurrent().getRequest().getRequestURI()
+				.substring(path.length());
 		ActionExecutor executor = null;
 		for (UrlMapper urlMapper : urlMapperArray) {
 			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
 			if (parameterMap != null) {
+				Map<String, String> queryStringParameterMap = this
+						.parseQueryString(getCurrent().getRequest()
+								.getQueryString());
+				if (queryStringParameterMap != null) {
+					parameterMap.putAll(queryStringParameterMap);
+				}
 				Action action = urlMapperMap.get(urlMapper);
-				executor = new ActionExecutor(this.request, this.response,
-						action, parameterMap);
+				executor = new ActionExecutor(action, parameterMap);
 				break;
 			}
 		}

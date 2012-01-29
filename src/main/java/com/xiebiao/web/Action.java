@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 public class Action {
 	private Object instance;
 	private Method method;
-	private Class[] argumentTypes;
+	private Class<?>[] argumentTypes;
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
 
-	public Action(Object instance, Method method, Class[] argumentTypes) {
+	public Action(Object instance, Method method, Class<?>[] argumentTypes) {
 		this.instance = instance;
 		this.method = method;
 		this.argumentTypes = argumentTypes;
@@ -31,6 +31,14 @@ public class Action {
 
 	public void setInstance(Object instance) {
 		this.instance = instance;
+	}
+
+	public Class<?>[] getArgumentTypes() {
+		return argumentTypes;
+	}
+
+	public void setArgumentTypes(Class<?>[] argumentTypes) {
+		this.argumentTypes = argumentTypes;
 	}
 
 }

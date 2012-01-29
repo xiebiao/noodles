@@ -11,6 +11,25 @@ import com.xiebiao.web.renderer.TemplateRenderer;
 
 public class Blog {
 	private String name;
+	private String asd;
+	private int order;
+
+	public String getAsd() {
+		return asd;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setAsd(String asd) {
+		this.asd = asd;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
 	private int id;
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -42,6 +61,8 @@ public class Blog {
 
 	@Mapping("/blog/show")
 	public Renderer show2() {
+		LOG.debug(this.getOrder() + "");
+		LOG.debug(this.getAsd());
 		LOG.debug("Renderer /blog/show");
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("name", this.getName());
