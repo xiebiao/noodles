@@ -45,7 +45,8 @@ public class DispatcherFilter implements Filter {
 			return;
 		} else {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("Cann't find handle action!");
+				LOG.debug("Cann't find handle action for URL:"
+						+ req.getRequestURL());
 			}
 			chain.doFilter(request, response);
 		}

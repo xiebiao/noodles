@@ -17,7 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 
 import com.xiebiao.web.annotation.Mapping;
+import com.xiebiao.web.exception.ExecuteException;
 import com.xiebiao.web.exception.MappingException;
+import com.xiebiao.web.exception.RenderException;
 import com.xiebiao.web.renderer.Renderer;
 
 /**
@@ -155,8 +157,17 @@ public class RequestContext {
 		return false;
 	}
 
-	private void _handleException() {
+	private void _handleException(Exception e) {
+		try {
+			if ((e instanceof RenderException)
+					|| (e instanceof ExecuteException)) {
+				// Return 500
+				getCurrent().getResponse().sendError(500);
+			}
 
+		} catch (Exception e1) {
+			e.printStackTrace();
+		}
 	}
 
 	private void _handleResult(ActionExecutor executor) {
@@ -176,7 +187,7 @@ public class RequestContext {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			_handleException();
+			_handleException(e);
 		}
 	}
 
