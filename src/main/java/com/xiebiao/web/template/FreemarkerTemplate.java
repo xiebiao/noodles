@@ -30,19 +30,21 @@ public class FreemarkerTemplate implements Template {
 		try {
 			p.load(new FileInputStream(f));
 			_cfg.setSettings(p);
+			String templatesDirectory = RequestHandler.getCurrent()
+					.getServletContext().getRealPath("")
+					+ "/WEB-INF/templates/";
+			_cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	public void render(HttpServletRequest request, HttpServletResponse response)
 			throws RenderException {
 
 		try {
-			String templatesDirectory = RequestHandler.getCurrent()
-					.getServletContext().getRealPath("")
-					+ "/WEB-INF/templates/";
-			_cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
+
 			freemarker.template.Template template = _cfg
 					.getTemplate(this._templateFile);
 			response.setContentType("text/html; charset="
