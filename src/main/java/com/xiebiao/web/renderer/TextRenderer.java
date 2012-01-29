@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.xiebiao.web.MediaType;
-import com.xiebiao.web.RequestContext;
+import com.xiebiao.web.RequestHandler;
 import com.xiebiao.web.exception.RenderException;
 
 /**
@@ -28,7 +28,7 @@ public class TextRenderer implements Renderer {
 			throws RenderException {
 		try {
 			response.setContentType(this._mediaType.getName());
-			response.setCharacterEncoding(RequestContext.ENCODING);
+			response.setCharacterEncoding(RequestHandler.ENCODING);
 			Writer wr = response.getWriter();
 			wr.write(_data);
 			wr.flush();

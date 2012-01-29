@@ -27,8 +27,8 @@ import com.xiebiao.web.renderer.Renderer;
  * @author xiaog (joyrap@gmail.com)
  * 
  */
-public class RequestContext {
-	private static final ThreadLocal<RequestContext> contextThreadLocal = new ThreadLocal<RequestContext>();
+public class RequestHandler {
+	private static final ThreadLocal<RequestHandler> contextThreadLocal = new ThreadLocal<RequestHandler>();
 	public static String ENCODING = "UTF-8";
 	private ServletContext _servletContext;
 	private HttpServletRequest _request;
@@ -39,7 +39,7 @@ public class RequestContext {
 	private static UrlMapper[] _urlMapperArray;
 	private String _packages;
 
-	public RequestContext(Setting settings) {
+	public RequestHandler(Setting settings) {
 		this._servletContext = settings.getServletContext();
 		this._packages = settings.getInitParameter("packages");
 		if (_packages == null) {
@@ -47,7 +47,7 @@ public class RequestContext {
 		}
 	}
 
-	public static void set(RequestContext requestContext) {
+	public static void set(RequestHandler requestContext) {
 		contextThreadLocal.set(requestContext);
 	}
 
@@ -55,7 +55,7 @@ public class RequestContext {
 		contextThreadLocal.remove();
 	}
 
-	public static RequestContext getCurrent() {
+	public static RequestHandler getCurrent() {
 		return contextThreadLocal.get();
 	}
 

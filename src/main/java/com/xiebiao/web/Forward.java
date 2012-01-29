@@ -43,12 +43,12 @@ public class Forward {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Forward to URL:" + forwarder.getUrl());
 		}
-		for (UrlMapper urlMapper : RequestContext.getCurrent()
+		for (UrlMapper urlMapper : RequestHandler.getCurrent()
 				.getUrlMapperArray()) {
 			Map<String, String> parameterMap = urlMapper
 					.getParameterMap(forwarder.getUrl());
 			if (parameterMap != null) {
-				Action action = RequestContext.getUrlMapperMap().get(urlMapper);
+				Action action = RequestHandler.getUrlMapperMap().get(urlMapper);
 				ActionExecutor actionExecutor = new ActionExecutor(action,
 						parameterMap);
 				Object result = actionExecutor.excute();
@@ -60,8 +60,8 @@ public class Forward {
 					forwardNext(_forwarder);
 				} else if (result instanceof Renderer) {
 					Renderer renderer = (Renderer) result;
-					renderer.render(RequestContext.getCurrent().getRequest(),
-							RequestContext.getCurrent().getResponse());
+					renderer.render(RequestHandler.getCurrent().getRequest(),
+							RequestHandler.getCurrent().getResponse());
 					return;
 				}
 			}

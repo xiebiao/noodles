@@ -22,10 +22,10 @@ import org.slf4j.LoggerFactory;
 public class DispatcherFilter implements Filter {
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private RequestContext requestContext;
+	private RequestHandler requestContext;
 
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		requestContext = new RequestContext(new Setting() {
+		requestContext = new RequestHandler(new Setting() {
 			public ServletContext getServletContext() {
 				return filterConfig.getServletContext();
 			}

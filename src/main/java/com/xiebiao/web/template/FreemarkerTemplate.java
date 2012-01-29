@@ -9,7 +9,7 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.xiebiao.web.RequestContext;
+import com.xiebiao.web.RequestHandler;
 import com.xiebiao.web.exception.RenderException;
 
 import freemarker.template.Configuration;
@@ -24,7 +24,7 @@ public class FreemarkerTemplate implements Template {
 		this._templateFile = templateFile;
 		this._data = data;
 		Properties p = new Properties();
-		File f = new File(RequestContext.getCurrent().getServletContext()
+		File f = new File(RequestHandler.getCurrent().getServletContext()
 				.getRealPath("")
 				+ "/WEB-INF/" + _configFile);
 		try {
@@ -39,14 +39,14 @@ public class FreemarkerTemplate implements Template {
 			throws RenderException {
 
 		try {
-			String templatesDirectory = RequestContext.getCurrent()
+			String templatesDirectory = RequestHandler.getCurrent()
 					.getServletContext().getRealPath("")
 					+ "/WEB-INF/templates/";
 			_cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
 			freemarker.template.Template template = _cfg
 					.getTemplate(this._templateFile);
 			response.setContentType("text/html; charset="
-					+ RequestContext.ENCODING);
+					+ RequestHandler.ENCODING);
 			Writer out = response.getWriter();
 			template.process(_data, out);
 		} catch (Exception e) {

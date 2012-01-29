@@ -13,6 +13,6 @@ public class Redirector {
 	}
 
 	public void redirect() throws Exception {
-		RequestContext.getCurrent().getResponse().sendRedirect(location);
+		RequestHandler.getCurrent().getResponse().sendRedirect(location);
 	}
 }
