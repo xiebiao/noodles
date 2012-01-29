@@ -10,6 +10,11 @@ import com.xiebiao.web.exception.RenderException;
 import com.xiebiao.web.template.FreemarkerTemplate;
 import com.xiebiao.web.template.Template;
 
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ * 
+ */
 public class TemplateRenderer implements Renderer {
 	private String templatePath;
 	private Map<String, Object> data;

@@ -5,9 +5,11 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.xiebiao.web.MediaType;
 import com.xiebiao.web.annotation.Mapping;
 import com.xiebiao.web.renderer.Renderer;
 import com.xiebiao.web.renderer.TemplateRenderer;
+import com.xiebiao.web.renderer.TextRenderer;
 
 public class Blog {
 	private String name;
@@ -52,11 +54,10 @@ public class Blog {
 
 	@Mapping("/blog/${id}")
 	public Renderer blog() {
-		LOG.debug("Renderer /blog/show");
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("name", this.getName());
 		map.put("id", this.getId());
-		return new TemplateRenderer("Blog.html", map);
+		return new TextRenderer(MediaType.TEXT_PLAIN,"name");
 	}
 
 	@Mapping("/blog/show")

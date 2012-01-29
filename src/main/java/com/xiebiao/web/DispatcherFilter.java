@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ * 
+ */
 public class DispatcherFilter implements Filter {
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());

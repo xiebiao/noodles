@@ -5,9 +5,12 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import com.xiebiao.web.renderer.Renderer;
-
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ *
+ */
 public class Forward {
-	private boolean debug;
 	private String url;
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
@@ -40,7 +43,8 @@ public class Forward {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Forward to URL:" + forwarder.getUrl());
 		}
-		for (UrlMapper urlMapper : RequestContext.getUrlMapperArray()) {
+		for (UrlMapper urlMapper : RequestContext.getCurrent()
+				.getUrlMapperArray()) {
 			Map<String, String> parameterMap = urlMapper
 					.getParameterMap(forwarder.getUrl());
 			if (parameterMap != null) {
@@ -66,13 +70,5 @@ public class Forward {
 
 	public void forward(Forward forwarder) throws Exception {
 		forwardNext(forwarder);
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
 	}
 }

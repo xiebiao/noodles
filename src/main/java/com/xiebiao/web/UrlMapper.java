@@ -12,19 +12,18 @@ import org.slf4j.LoggerFactory;
 public class UrlMapper {
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private String url;
-	private Pattern pattern;
-	private String[] parameterNames;
-	private boolean debug = true;
+	private String _url;
+	private Pattern _pattern;
+	private String[] _parameterNames;
 
 	public UrlMapper(String mappingUrl) {
-		this.url = mappingUrl;
-		if (this.isDebug()) {
-			LOG.debug(this.url);
+		this._url = mappingUrl;
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(this._url);
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("^");
-		String tempUrl = this.url;
+		String tempUrl = this._url;
 		List<String> parameterNames = new ArrayList<String>();
 		for (; tempUrl.length() != 0;) {
 			int $ = tempUrl.indexOf("${");
@@ -38,42 +37,42 @@ public class UrlMapper {
 				tempUrl = tempUrl.substring($_ + 1);
 			} else {
 				// no query string
-				sb.append(this.url);
+				sb.append(this._url);
 				break;
 			}
 		}
 		sb.append("$");
-		this.parameterNames = new String[parameterNames.size()];
+		this._parameterNames = new String[parameterNames.size()];
 		for (int i = 0; i < parameterNames.size(); i++) {
-			this.parameterNames[i] = parameterNames.get(i);
+			this._parameterNames[i] = parameterNames.get(i);
 		}
 
-		this.pattern = Pattern.compile(sb.toString());
+		this._pattern = Pattern.compile(sb.toString());
 	}
 
 	/**
-	 * 从请求URL种获取参数值
+	 * Get param
 	 * 
-	 * @param requestUrl
+	 * @param uri
 	 * @return
 	 */
-	public Map<String, String> getParameterMap(String requestUrl) {
+	public Map<String, String> getParameterMap(String uri) {
 		Map<String, String> paramsValues = new HashMap<String, String>();
 		// Url equals.
-		if (requestUrl.equals(this.getUrl())) {
+		if (uri.equals(this.getUrl())) {
 			return paramsValues;
 		}
-		Matcher m = this.pattern.matcher(requestUrl);
+		Matcher m = this._pattern.matcher(uri);
 		if (!m.matches()) {
 			return null;
 		}
 		int count = m.groupCount();
-		if (this.parameterNames.length != count) {
+		if (this._parameterNames.length != count) {
 			return null;
 		}
 		for (int i = 1; i <= count; i++) {
 			String value = m.group(i);
-			paramsValues.put(this.parameterNames[i - 1], value);
+			paramsValues.put(this._parameterNames[i - 1], value);
 		}
 		return paramsValues;
 	}
@@ -83,7 +82,7 @@ public class UrlMapper {
 			return true;
 		if (obj instanceof UrlMapper) {
 			UrlMapper urlMapper = (UrlMapper) obj;
-			if (urlMapper.url.equals(this.url)) {
+			if (urlMapper._url.equals(this._url)) {
 				return true;
 			}
 		}
@@ -91,22 +90,14 @@ public class UrlMapper {
 	}
 
 	public int hashCode() {
-		return url.hashCode();
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
+		return _url.hashCode();
 	}
 
 	public String getUrl() {
-		return url;
+		return _url;
 	}
 
 	public Pattern getPattern() {
-		return pattern;
+		return _pattern;
 	}
 }

@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 import com.xiebiao.web.exception.ExecuteException;
 import com.xiebiao.web.util.BeanUtils;
 
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ * 
+ */
 public class ActionExecutor {
 	private Action action;
 	private Map<String, String> arguments;

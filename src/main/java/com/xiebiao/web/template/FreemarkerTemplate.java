@@ -20,7 +20,7 @@ public class FreemarkerTemplate implements Template {
 	private String templateFile;
 	private Map<String, Object> data;
 	private final static Configuration cfg = new Configuration();
-
+	
 	public FreemarkerTemplate(String templateFile, Map<String, Object> data) {
 		this.templateFile = templateFile;
 		this.data = data;
@@ -34,7 +34,6 @@ public class FreemarkerTemplate implements Template {
 					.getServletContext().getRealPath("")
 					+ "/WEB-INF/templates/";
 			cfg.setDirectoryForTemplateLoading(new File(templatesDirectory));
-			LOG.debug(templatesDirectory);
 			freemarker.template.Template template = cfg
 					.getTemplate(this.templateFile);
 			response.setContentType("text/html; charset="

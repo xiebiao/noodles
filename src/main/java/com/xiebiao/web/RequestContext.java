@@ -22,26 +22,26 @@ import com.xiebiao.web.renderer.Renderer;
 
 /**
  * 
- * @author xiaog
+ * @author xiaog (joyrap@gmail.com)
  * 
  */
 public class RequestContext {
 	private static final ThreadLocal<RequestContext> contextThreadLocal = new ThreadLocal<RequestContext>();
 	public static String ENCODING = "UTF-8";
-	private ServletContext servletContext;
-	private HttpServletRequest request;
-	private HttpServletResponse response;
-	private static Map<UrlMapper, Action> urlMapperMap = new HashMap<UrlMapper, Action>();
+	private ServletContext _servletContext;
+	private HttpServletRequest _request;
+	private HttpServletResponse _response;
+	private static Map<UrlMapper, Action> _urlMapperMap = new HashMap<UrlMapper, Action>();
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private static UrlMapper[] urlMapperArray;
-	private String packages;
+	private static UrlMapper[] _urlMapperArray;
+	private String _packages;
 
 	public RequestContext(Settings settings) {
-		this.servletContext = settings.getServletContext();
-		this.packages = settings.getInitParameter("packages");
-		if (packages == null) {
-			packages = "com.xiebiao.web.action";
+		this._servletContext = settings.getServletContext();
+		this._packages = settings.getInitParameter("packages");
+		if (_packages == null) {
+			_packages = "com.xiebiao.web.action";
 		}
 	}
 
@@ -58,7 +58,7 @@ public class RequestContext {
 	}
 
 	public static Map<UrlMapper, Action> getUrlMapperMap() {
-		return urlMapperMap;
+		return _urlMapperMap;
 	}
 
 	public void init() {
@@ -70,7 +70,7 @@ public class RequestContext {
 		//
 		File actionClassFilePath = new File(this.getClass().getClassLoader()
 				.getResource("").getFile()
-				+ File.separator + packages.replace(".", File.separator));
+				+ File.separator + _packages.replace(".", File.separator));
 		String[] actionClassFiles = actionClassFilePath.list();
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(actionClassFilePath.getAbsolutePath());
@@ -78,7 +78,7 @@ public class RequestContext {
 		for (String _class : actionClassFiles) {
 			String className = _class.replace(".class", "");
 			try {
-				Object actionObj = Class.forName(packages + "." + className)
+				Object actionObj = Class.forName(_packages + "." + className)
 						.newInstance();
 				Method[] ms = actionObj.getClass().getMethods();
 				for (Method m : ms) {
@@ -88,14 +88,14 @@ public class RequestContext {
 						Action action = new Action(actionObj, m,
 								m.getParameterTypes());
 						UrlMapper urlMapper = new UrlMapper(url);
-						if (urlMapperMap.get(urlMapper) != null) {
+						if (_urlMapperMap.get(urlMapper) != null) {
 							throw new MappingException(
 									"'"
 											+ url
 											+ "'"
 											+ " is matched more than one action method.");
 						} else {
-							urlMapperMap.put(urlMapper, action);
+							_urlMapperMap.put(urlMapper, action);
 						}
 
 					}
@@ -105,16 +105,16 @@ public class RequestContext {
 				e.printStackTrace();
 			}
 		}
-		urlMapperArray = new UrlMapper[urlMapperMap.keySet().size()];
-		Iterator<?> it = urlMapperMap.keySet().iterator();
+		_urlMapperArray = new UrlMapper[_urlMapperMap.keySet().size()];
+		Iterator<?> it = _urlMapperMap.keySet().iterator();
 		int sum = 0;
 		while (it.hasNext()) {
 			UrlMapper urlMapper = (UrlMapper) it.next();
-			urlMapperArray[sum] = urlMapper;
+			_urlMapperArray[sum] = urlMapper;
 			sum++;
 		}
 		// url sort
-		Arrays.sort(urlMapperArray, new Comparator<UrlMapper>() {
+		Arrays.sort(_urlMapperArray, new Comparator<UrlMapper>() {
 			public int compare(UrlMapper o1, UrlMapper o2) {
 				String url1 = o1.getUrl();
 				String url2 = o2.getUrl();
@@ -129,7 +129,7 @@ public class RequestContext {
 			}
 		});
 		if (LOG.isDebugEnabled()) {
-			for (UrlMapper urlMapper : urlMapperArray) {
+			for (UrlMapper urlMapper : _urlMapperArray) {
 				LOG.debug(urlMapper.getUrl());
 			}
 		}
@@ -155,11 +155,11 @@ public class RequestContext {
 		return false;
 	}
 
-	private void handleException() {
+	private void _handleException() {
 
 	}
 
-	private void handleResult(ActionExecutor executor) {
+	private void _handleResult(ActionExecutor executor) {
 		try {
 			Object result = executor.excute();
 			if (result instanceof Renderer) {
@@ -176,11 +176,11 @@ public class RequestContext {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			handleException();
+			_handleException();
 		}
 	}
 
-	private Map<String, String> parseQueryString(String queryString) {
+	private Map<String, String> _parseQueryString(String queryString) {
 		if (queryString == null || queryString.equals("")
 				|| queryString.indexOf("=") == -1) {
 			return null;
@@ -214,29 +214,30 @@ public class RequestContext {
 	 */
 	public boolean service(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		this.request = req;
-		this.response = res;
+		req.setCharacterEncoding(ENCODING);
+		this._request = req;
+		this._response = res;
 		set(this);
 		String path = getCurrent().getRequest().getContextPath();
-		String url = getCurrent().getRequest().getRequestURI()
+		String uri = getCurrent().getRequest().getRequestURI()
 				.substring(path.length());
 		ActionExecutor executor = null;
-		for (UrlMapper urlMapper : urlMapperArray) {
-			Map<String, String> parameterMap = urlMapper.getParameterMap(url);
+		for (UrlMapper urlMapper : _urlMapperArray) {
+			Map<String, String> parameterMap = urlMapper.getParameterMap(uri);
 			if (parameterMap != null) {
 				Map<String, String> queryStringParameterMap = this
-						.parseQueryString(getCurrent().getRequest()
+						._parseQueryString(getCurrent().getRequest()
 								.getQueryString());
 				if (queryStringParameterMap != null) {
 					parameterMap.putAll(queryStringParameterMap);
 				}
-				Action action = urlMapperMap.get(urlMapper);
+				Action action = _urlMapperMap.get(urlMapper);
 				executor = new ActionExecutor(action, parameterMap);
 				break;
 			}
 		}
 		if (executor != null) {
-			this.handleResult(executor);
+			this._handleResult(executor);
 			remove();
 			return true;
 		}
@@ -244,25 +245,25 @@ public class RequestContext {
 		return false;
 	}
 
-	public static UrlMapper[] getUrlMapperArray() {
-		return urlMapperArray;
+	public UrlMapper[] getUrlMapperArray() {
+		return _urlMapperArray;
 	}
 
 	public void destroy() {
-		this.request = null;
-		this.response = null;
-		this.servletContext = null;
+		this._request = null;
+		this._response = null;
+		this._servletContext = null;
 	}
 
 	public HttpServletRequest getRequest() {
-		return request;
+		return _request;
 	}
 
 	public HttpServletResponse getResponse() {
-		return response;
+		return _response;
 	}
 
 	public ServletContext getServletContext() {
-		return servletContext;
+		return _servletContext;
 	}
 }

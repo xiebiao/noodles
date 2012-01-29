@@ -6,6 +6,11 @@ import java.util.Map;
 
 import com.xiebiao.web.converter.ConverterHelper;
 
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ * 
+ */
 public final class BeanUtils {
 
 	public static Method getMethod(Object bean, String methodName)

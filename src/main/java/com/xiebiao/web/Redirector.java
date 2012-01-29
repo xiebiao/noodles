@@ -1,5 +1,10 @@
 package com.xiebiao.web;
 
+/**
+ * 
+ * @author xiaog (joyrap@gmail.com)
+ * 
+ */
 public class Redirector {
 	private String location;
 
