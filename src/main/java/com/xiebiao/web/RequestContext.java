@@ -37,9 +37,9 @@ public class RequestContext {
 	private static UrlMapper[] urlMapperArray;
 	private String packages;
 
-	public RequestContext(Setting setting) {
-		this.servletContext = setting.getServletContext();
-		this.packages = setting.getInitParameter("packages");
+	public RequestContext(Settings settings) {
+		this.servletContext = settings.getServletContext();
+		this.packages = settings.getInitParameter("packages");
 		if (packages == null) {
 			packages = "com.xiebiao.web.action";
 		}

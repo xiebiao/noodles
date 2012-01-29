@@ -20,7 +20,7 @@ public class DispatcherFilter implements Filter {
 	private RequestContext requestContext;
 
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		requestContext = new RequestContext(new Setting() {
+		requestContext = new RequestContext(new Settings() {
 			public ServletContext getServletContext() {
 				return filterConfig.getServletContext();
 			}
