@@ -41,6 +41,9 @@ public class RequestHandler {
 
 	public RequestHandler(Setting settings) {
 		this._servletContext = settings.getServletContext();
+		if (this._servletContext == null) {
+			throw new IllegalArgumentException("ServletContext cannot be null");
+		}
 		this._packages = settings.getInitParameter("packages");
 		if (_packages == null) {
 			_packages = "com.xiebiao.web.action";
