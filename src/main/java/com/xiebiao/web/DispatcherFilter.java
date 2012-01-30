@@ -22,10 +22,10 @@ import org.slf4j.LoggerFactory;
 public class DispatcherFilter implements Filter {
 	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(this
 			.getClass());
-	private RequestHandler requestContext;
+	private RequestHandler requestHandler;
 
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		requestContext = new RequestHandler(new Setting() {
+		requestHandler = new RequestHandler(new Setting() {
 			public ServletContext getServletContext() {
 				return filterConfig.getServletContext();
 			}
@@ -34,14 +34,15 @@ public class DispatcherFilter implements Filter {
 				return filterConfig.getInitParameter(name);
 			}
 		});
-		requestContext.init();
+		requestHandler.init();
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
-		if (requestContext.service(req, res)) {
+		if (requestHandler.service(req, res)) {
+			RequestHandler.remove();
 			return;
 		} else {
 			if (LOG.isDebugEnabled()) {
@@ -53,7 +54,7 @@ public class DispatcherFilter implements Filter {
 	}
 
 	public void destroy() {
-		this.requestContext.destroy();
+		this.requestHandler.destroy();
 	}
 
 }

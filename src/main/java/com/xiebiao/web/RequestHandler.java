@@ -78,7 +78,13 @@ public class RequestHandler {
 				+ File.separator + _packages.replace(".", File.separator));
 		String[] actionClassFiles = actionClassFilePath.list();
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(actionClassFilePath.getAbsolutePath());
+			LOG.debug("Loading action from:"
+					+ actionClassFilePath.getAbsolutePath());
+		}
+		if (actionClassFiles == null) {
+			LOG.error("Can't find any classes :"
+					+ actionClassFilePath.getAbsolutePath());
+			return;
 		}
 		for (String _class : actionClassFiles) {
 			String className = _class.replace(".class", "");
@@ -221,20 +227,23 @@ public class RequestHandler {
 	/**
 	 * handle service
 	 * 
-	 * @param req
-	 * @param res
+	 * @param request
+	 * @param response
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public boolean service(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
-		req.setCharacterEncoding(ENCODING);
-		this._request = req;
-		this._response = res;
+	public boolean service(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		request.setCharacterEncoding(ENCODING);
+		this._request = request;
+		this._response = response;
 		set(this);
 		String path = getCurrent().getRequest().getContextPath();
 		String uri = getCurrent().getRequest().getRequestURI()
 				.substring(path.length());
+		if (uri.length() > 255) {
+			return false;
+		}
 		ActionExecutor executor = null;
 		for (UrlMapper urlMapper : _urlMapperArray) {
 			Map<String, String> parameterMap = urlMapper.getParameterMap(uri);
@@ -252,10 +261,8 @@ public class RequestHandler {
 		}
 		if (executor != null) {
 			this._handleResult(executor);
-			remove();
 			return true;
 		}
-		remove();
 		return false;
 	}
 

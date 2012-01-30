@@ -25,7 +25,7 @@ public class UrlMapper {
 		sb.append("^");
 		String tempUrl = this._url;
 		List<String> parameterNames = new ArrayList<String>();
-		for (; tempUrl.length() != 0;) {
+		for (; tempUrl.length() > 0;) {
 			int $ = tempUrl.indexOf("${");
 			if ($ != -1) {
 				sb.append(tempUrl.substring(0, $));
@@ -35,18 +35,16 @@ public class UrlMapper {
 				String paramName = tempUrl.substring(0, $_);
 				parameterNames.add(paramName);
 				tempUrl = tempUrl.substring($_ + 1);
-			} else {
-				// no query string
-				sb.append(this._url);
-				break;
+				continue;
 			}
+			sb.append(tempUrl);
+			break;
 		}
 		sb.append("$");
 		this._parameterNames = new String[parameterNames.size()];
 		for (int i = 0; i < parameterNames.size(); i++) {
 			this._parameterNames[i] = parameterNames.get(i);
 		}
-
 		this._pattern = Pattern.compile(sb.toString());
 	}
 
