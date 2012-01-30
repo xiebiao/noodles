@@ -26,7 +26,7 @@ public class UrlMapperTest extends TestCase {
 	}
 
 	public void test_create_3() {
-		UrlMapper urlMapper = new UrlMapper("/${user}/${name}/${id}/");
+		UrlMapper urlMapper = new UrlMapper("/${user}/${name}/${id}/asdasd");
 		Assert.assertNotNull(urlMapper);
 	}
 
